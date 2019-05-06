@@ -279,13 +279,15 @@ describe('./test/SubjectGroup.js >', () => {
 
   describe('getSubjectsToShow', () => {
     const subjectGroup = new SubjectGroup(subject.parentAbsolutePath, subject);
-    subjectGroup.subjects = {
-      abc: { name: 'abc' },
-      test: { name: 'test' },
-      xyz: { name: 'xyz' },
-      zzzz: { name: 'zzzz' },
-    };
-
+    beforeEach(() => {
+      subjectGroup.subjects = {
+        abc: { name: 'abc' },
+        test: { name: 'test' },
+        xyz: { name: 'xyz' },
+        zzzz: { name: 'zzzz' },
+      }; 
+    });
+    
     it('Default behaviour', (done) => {
       const expectedArray = [
         { name: 'abc' },
@@ -296,6 +298,44 @@ describe('./test/SubjectGroup.js >', () => {
       subjectGroup.subjectsToShow = new Set(['Abc', 'zzzz', 'test', 'xyz']);
       expect(subjectGroup.getSubjectsToShow())
        .to.be.deep.equal(expectedArray);
+      return done();
+    });
+
+    it('Marketing Cloud specific behavior for sorting stacks numerically', (done) => {
+      subjectGroup.subjects = {
+        'stack1': { name: 'stack1' },
+        'stack3': { name: 'stack3' },
+        'stack4': { name: 'stack4' },
+        'stack10': { name: 'stack10' },
+      };
+      const expectedArray = [
+        { name: 'stack1' },
+        { name: 'stack3' },
+        { name: 'stack4' },
+        { name: 'stack10' },
+      ];
+      subjectGroup.subjectsToShow = new Set(['Stack1', 'Stack4', 'Stack10', 'Stack3']);
+      expect(subjectGroup.getSubjectsToShow())
+        .to.be.deep.equal(expectedArray);
+      return done();
+    });
+
+    it('Marketing Cloud specific behavior for sorting database instances numerically', (done) => {
+      subjectGroup.subjects = {
+        '1': { name: '1' },
+        '3': { name: '3' },
+        '4': { name: '4' },
+        '10': { name: '10' },
+      };
+      const expectedArray = [
+        { name: '1' },
+        { name: '3' },
+        { name: '4' },
+        { name: '10' },
+      ];
+      subjectGroup.subjectsToShow = new Set(['1', '4', '10', '3']);
+      expect(subjectGroup.getSubjectsToShow())
+        .to.be.deep.equal(expectedArray);
       return done();
     });
 

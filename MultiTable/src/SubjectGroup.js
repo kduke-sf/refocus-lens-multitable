@@ -277,9 +277,41 @@ module.exports = class SubjectGroup {
   }
 
   static subjectSorter(subject1, subject2) {
-    const string1 = subject1.sortBy || subject1.name;
-    const string2 = subject2.sortBy || subject2.name;
-    return d3a.ascending(string1.toLowerCase(), string2.toLowerCase());
+    const sortArg1 = subject1.sortBy || subject1.name;
+    const sortArg2 = subject2.sortBy || subject2.name;
+
+    // Check for a Marketing Cloud subject pattern. 
+    // This will start with characters and end with a number. I.e., 'Stack50'
+    const mcStackRegex = /^([A-Za-z.]+)(\d+)$/;
+    const groupsArg1 = mcStackRegex.exec(sortArg1);
+    const groupsArg2 = mcStackRegex.exec(sortArg2);
+
+    // If a match was found, determine the prefix portion of the subject
+    const prefix1 = groupsArg1 && groupsArg1[1];
+    const prefix2 = groupsArg2 && groupsArg2[1];
+
+    if (prefix1 && prefix2 && prefix1 === prefix2) {
+        // The prefixes are equivalent (likely 'Stack'), so sort based on the numeric suffix.
+        // For example, sort 'Stack1' against 'Stack4', 
+        // treating the numeric portion at the end as the real sort argument
+        const suffix1 = groupsArg1[2];
+        const suffix2 = groupsArg2[2];
+
+        const arg1Num = parseInt(suffix1);
+        const arg2Num = parseInt(suffix2);
+
+        return d3a.ascending(arg1Num, arg2Num);
+    }
+
+    // Fall back to standard lexical sort for non-numeric strings
+    if (isNaN(sortArg1) || isNaN(sortArg2)) {
+        return d3a.ascending(sortArg1.toLowerCase(), sortArg2.toLowerCase());
+    }
+
+    // Use numeric sort here since both values are integers
+    const arg1Num = parseInt(sortArg1);
+    const arg2Num = parseInt(sortArg2);
+    return d3a.ascending(arg1Num, arg2Num);
   } // subjectSorter
 
   static nameSorter(a, b) {
