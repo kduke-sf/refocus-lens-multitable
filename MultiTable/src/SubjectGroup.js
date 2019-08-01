@@ -10,15 +10,12 @@
  * ./MultiTable/src/SubjectGroup.js
  */
  'use strict';
-const MarkdownIt = require('markdown-it');
 const d3c = require('./lib/d3-collection.v1.min.js');
 const d3a = require('./lib/d3-array.v1.min.js');
 const conf = require('./config.json');
 const Utils = require('./Utils');
 const SampleUtils = require('./SampleUtils');
 const SubjectUtils = require('./SubjectUtils');
-
-const md = new MarkdownIt();
 
 function aspectSorter(a, b) {
   let ret;
@@ -108,7 +105,6 @@ module.exports = class SubjectGroup {
    */
   addSample(s) {
     this.samples[s.name.toLowerCase()] = s;
-    this.applyComputedPropsForAspect(s.aspect);
     this.aspects[s.aspect.name.toLowerCase()] = s.aspect;
   }
 
@@ -278,13 +274,6 @@ module.exports = class SubjectGroup {
 
   getSortedSubjectList() {
     return this.subjectList().sort(SubjectGroup.subjectSorter);
-  }
-
-  applyComputedPropsForAspect(aspect) {
-    if (!aspect.richDescription) {
-      aspect.richDescription = md.render(aspect.description);
-    }
-    return aspect;
   }
 
   static subjectSorter(subject1, subject2) {

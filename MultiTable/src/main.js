@@ -28,6 +28,9 @@ const Utils = require('./Utils');
 require('../../../Helpers/multiline.js');
 const handlebars = require('handlebars-template-loader/runtime');
 
+const MarkdownIt = require('markdown-it');
+const md = new MarkdownIt();
+
 const template = {
   awesome: require('./template/awesome.handlebars'),
   pageHeader: require('./template/pageHeader.handlebars'),
@@ -300,6 +303,8 @@ function setSampleListeners(subjectGroup) {
         s.relatedLinks.sort(Utils.sortByNameAscending);
       }
 
+      s.aspect.richDescription = md.render(s.aspect.description || '');
+
       bindContentToModal(sampleModal, template.sampleModal,
         conf.modal.sample, s);
       $('#modal-sample').modal(); // open the modal
@@ -345,6 +350,8 @@ function setAspectListeners(subjectGroup) {
       if (aspect.tags && aspect.tags.length > 1) {
         aspect.tags.sort(Utils.sort);
       }
+
+      aspect.richDescription = md.render(aspect.description || '');
 
       bindContentToModal(aspectModal, template.aspectModal,
         conf.modal.aspect, aspect);
